@@ -1,1 +1,1 @@
-# -hw-backend-summer-2022-final-VKBot-100-k-1
+# hw-backend-summer-2022-final-VKBot-100-k-1
