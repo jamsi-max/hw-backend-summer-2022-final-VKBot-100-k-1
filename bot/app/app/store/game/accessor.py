@@ -170,7 +170,7 @@ class GameAccessor(BaseAccessor):
         data['keyboard'] = keyboard
 
         data['text'] = f'Информация об игре! <br>' \
-                       f'Статус: {"идёт" if game.is_run else "окончена"} <br>' \
+                       f'Статус: {"активна" if game.is_run else "не активна"} <br>' \
                        f'Начало игры: {game.created:%Y-%m-%d %H:%M} <br>' \
                        f'Заработано очков {game.current_score} <br>' \
                        f'Победитель: {"не определён" if player is None else player.name} <br>' \

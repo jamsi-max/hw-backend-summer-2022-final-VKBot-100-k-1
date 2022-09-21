@@ -50,6 +50,7 @@ jobs:
         script: |
           sudo docker compose stop
           sudo docker compose rm -f bot vk_api admin
+          sudo docker compose pull
           sudo touch .env
           echo DB_HOST=${{ secrets.DB_HOST }} > .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
