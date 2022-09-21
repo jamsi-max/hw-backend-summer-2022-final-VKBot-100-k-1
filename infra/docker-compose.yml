@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.10.7-management-alpine
+    container_name: rabbitmq
+    ports:
+        # for queue AMQP port
+        - 5673:5672
+        # for browser
+        - 15673:15672
+    volumes:
+        - /var/lib/rabbitmq
+        - /var/log/rabbitmq
+    env_file:
+      - ./.env
+
+  db:
+    image: postgres:13-alpine
+    container_name: db
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    env_file:
+      - ./.env
+    depends_on:
+      - rabbitmq
+
+  vkapi:
+    build:
+      context: ../vkapi
+    container_name: vkapi
+    restart: always
+    volumes:
+      - ../vkapi/app:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+
+  bot:
+    build:
+      context: ../bot
+    container_name: bot
+    restart: always
+    volumes:
+      - ../bot/app:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - vkapi
+
+  admin:
+    build:
+      context: ../admin
+    container_name: admin
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - ../admin/app:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - vkapi
+
+volumes:
+  postgres-data:

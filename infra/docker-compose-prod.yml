@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.10.7-management-alpine
+    container_name: rabbitmq
+    ports:
+        - 5673:5672
+        - 15673:15672
+    env_file:
+      - ./.env
+
+  db:
+    image: postgres:13-alpine
+    container_name: db
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+    depends_on:
+      - rabbitmq
+
+  vkapi:
+    image: jony2024/vkapi:latest
+    container_name: vkapi
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+
+  bot:
+    image: jony2024/bot:latest
+    container_name: bot
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - vkapi
+
+  admin:
+    image: jony2024/admin:latest
+    container_name: admin
+    restart: always
+    ports:
+      - 8080:8080
+    env_file:
+      - ./.env
+    depends_on:
+      - vkapi
+
+volumes:
+  postgres-data:
