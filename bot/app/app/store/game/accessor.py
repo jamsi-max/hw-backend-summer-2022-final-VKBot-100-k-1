@@ -176,8 +176,8 @@ class GameAccessor(BaseAccessor):
                        f'Победитель: {"не определён" if player is None else player.name} <br>' \
                        f'Всего игроков: {len(game.players)} <br>' \
                        f'Вопрос: {question.title}'
-
         await self.app.store.queue.publish(queue='vk_api', message=data)
+        await self.show_current_answers(data)
 
     async def check_answer(self, data: dict):
         if await self.check_not_game_run(data):
