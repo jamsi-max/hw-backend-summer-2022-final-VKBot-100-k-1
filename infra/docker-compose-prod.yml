@@ -10,7 +10,6 @@ services:
     env_file:
       - ./.env
 
-
   db:
     image: postgres:13-alpine
     container_name: db
