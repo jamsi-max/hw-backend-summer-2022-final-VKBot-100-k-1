@@ -1,0 +1,79 @@
+# .github/workflows/**yamdb_workflow.yml**
+name: Bot 100 k 1
+
+on: [push]
+
+jobs:
+  build_and_push_to_docker_hub:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Docker 
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push to Docker Hub vkapi
+        uses: docker/build-push-action@v2 
+        with:
+          file: vkapi/Dockerfile
+          push: true
+          tags: jony2024/vkapi:latest
+      - name: Push to Docker Hub bot
+        uses: docker/build-push-action@v2
+        with:
+          file: bot/Dockerfile
+          push: true
+          tags: jony2024/bot:latest
+      - name: Push to Docker Hub admin
+        uses: docker/build-push-action@v2
+        with:
+          file: admin/Dockerfile
+          push: true
+          tags: jony2024/admin:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - name: executing remote ssh commands to deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          sudo docker compose stop
+          sudo docker compose rm -f bot vk_api admin
+          touch .env
+          echo DB_HOST=${{ secrets.DB_HOST }} > .env
+          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+          echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
+          echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+          echo RABBITMQ_DEFAULT_USER=${{ secrets.RABBITMQ_DEFAULT_USER }} >> .env
+          echo RABBITMQ_DEFAULT_PASS=${{ secrets.RABBITMQ_DEFAULT_PASS }} >> .env
+          echo AMQP_HOST=${{ secrets.AMQP_HOST }} >> .env
+          echo SESSION_KEY=${{ secrets.SESSION_KEY }} >> .env
+          echo ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} >> .env
+          echo ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} >> .env
+          echo BOT_TOKEN=${{ secrets.BOT_TOKEN }} >> .env
+          echo BOT_GROUP_ID=${{ secrets.BOT_GROUP_ID }} >> .env
+          sudo docker compose up --force-recreate --build -d
+          sudo docker image prune -f
+
+  send_message:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+    - name: send message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: ${{ github.workflow }} успешно выполнен!

@@ -1,0 +1,9 @@
+admin:
+  email: <admin email>
+  password: <admin password>
+database:
+  host: <host name>
+  port: <port>
+  user: <user name>
+  password: <password>
+  database: <db name>

@@ -1,0 +1,13 @@
+session:
+  key: <key session>
+admin:
+  email: <admin email>
+  password: <admin password>
+database:
+  host: <host db>
+  port: <port db>
+  user: <user db name>
+  password: <db password>
+  database: <db name>
+
+
