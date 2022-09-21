@@ -4,9 +4,9 @@ LABEL maintainer="VKBot-100-k-1"
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY ./requirements.txt /requirements.txt
-COPY ./app /app
-COPY ./scripts /scripts
+COPY vkapi/requirements.txt /requirements.txt
+COPY vkapi/app /app
+COPY vkapi/scripts /scripts
 
 WORKDIR /app
 

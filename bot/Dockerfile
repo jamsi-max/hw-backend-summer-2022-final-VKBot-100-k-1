@@ -4,9 +4,9 @@ LABEL maintainer="VKBot-100-k-1"
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY ./requirements.txt /requirements.txt
-COPY ./app /app
-COPY ./scripts /scripts
+COPY bot/requirements.txt /requirements.txt
+COPY bot/app /app
+COPY bot/scripts /scripts
 
 WORKDIR /app
 EXPOSE 8080
