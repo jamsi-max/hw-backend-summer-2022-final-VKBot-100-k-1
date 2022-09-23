@@ -88,7 +88,8 @@ class VkApiAccessor(BaseAccessor):
             data = await response.json()
             self.app.logger.info(data)
 
-            self.ts = data['ts']
+            if data.get('ts'):
+                self.ts = data['ts']
             return data['updates']
 
     # async def send_message(self, message: Message) -> None:

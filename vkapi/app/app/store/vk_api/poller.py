@@ -47,6 +47,8 @@ class Poller:
                 raw_updates = await self.store.vk_api.poll()
             except ClientOSError:
                 continue
+            except KeyError:
+                continue
 
             for raw_update in raw_updates:
                 await self._handler(raw_update)
