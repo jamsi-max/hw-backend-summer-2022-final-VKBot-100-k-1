@@ -8,6 +8,10 @@ COPY admin/requirements.txt /requirements.txt
 COPY admin/app /app
 COPY admin/scripts /scripts
 
+COPY ./requirements.txt /requirements.txt
+COPY ./app /app
+COPY ./scripts /scripts
+
 WORKDIR /app
 
 RUN python -m venv /py && \
