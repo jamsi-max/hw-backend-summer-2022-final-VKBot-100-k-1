@@ -8,10 +8,6 @@ COPY vkapi/requirements.txt /requirements.txt
 COPY vkapi/app /app
 COPY vkapi/scripts /scripts
 
-COPY ./requirements.txt /requirements.txt
-COPY ./app /app
-COPY ./scripts /scripts
-
 WORKDIR /app
 
 RUN python -m venv /py && \

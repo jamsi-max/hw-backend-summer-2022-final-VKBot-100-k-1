@@ -8,10 +8,6 @@ COPY bot/requirements.txt /requirements.txt
 COPY bot/app /app
 COPY bot/scripts /scripts
 
-COPY ./requirements.txt /requirements.txt
-COPY ./app /app
-COPY ./scripts /scripts
-
 WORKDIR /app
 EXPOSE 8080
 
