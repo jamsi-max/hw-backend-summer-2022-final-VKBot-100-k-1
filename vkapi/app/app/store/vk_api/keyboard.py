@@ -15,7 +15,7 @@ keyboard_game_start = {
             },
             {
                 "action": {
-                    "type": "text",
+                    "type": "callback",
                     "payload": "{\"command\": \"info_game\"}",
                     "label": "Инфо"
                 },
@@ -37,7 +37,7 @@ keyboard_game_join = {
             },
             {
                 "action": {
-                    "type": "text",
+                    "type": "callback",
                     "payload": "{\"command\": \"info_game\"}",
                     "label": "Инфо"
                 },
@@ -59,7 +59,7 @@ keyboard_game_stop = {
             },
             {
                 "action": {
-                    "type": "text",
+                    "type": "callback",
                     "payload": "{\"command\": \"info_game\"}",
                     "label": "Инфо"
                 },

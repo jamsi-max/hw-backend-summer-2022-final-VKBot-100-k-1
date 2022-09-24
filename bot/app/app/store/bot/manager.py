@@ -30,16 +30,13 @@ class BotManager:
         if callback in self.command:
             await self.command[callback](data)
         elif int(data.get('user_id')) == self.app.store.game.responder:
-            # print('*'*80)
-            # print(data['text'])
             await self.check_answer(data)
         elif data['peer_id'] == self.CHAT_GAME_ID:
             data['text'] = 'Используйте кнопки для управления!'
-            data['keyboard'] = 'keyboard_game_start'
+            data['keyboard'] ='keyboard_game_start'
             await self.app.store.queue.publish(queue='vk_api', message=data)
         elif data['peer_id'] != self.CHAT_GAME_ID:
             await self.registration(data)
-
 
     async def registration(self, data):
         new_user = PlayerModel(
@@ -104,15 +101,7 @@ class BotManager:
 
     async def info_game(self, data: dict):
         if 'user_id' in data and await self.check_user(data):
-            if self.app.store.game.game_run:
-                keyboard = 'keyboard_game_stop'
-            else:
-                keyboard = 'keyboard_game_start'
-
-            await self.app.store.game.info(
-                data=data,
-                keyboard=keyboard
-            )
+            await self.app.store.game.info(data=data)
 
     async def check_answer(self, data: dict):
         if 'user_id' in data and await self.check_user(data):

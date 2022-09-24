@@ -11,7 +11,6 @@ from aio_pika.abc import (
 )
 
 from app.base.base_accessor import BaseAccessor
-from app.store.vk_api.dataclasses import Message as MessageVKApi
 from app.store.vk_api.keyboard import (
     keyboard_close,
     keyboard_game_start,
@@ -66,27 +65,6 @@ class QueueConnectAccessor(BaseAccessor):
             destination=data.get('destination', 'peer_id'),
             method=data.get('method', 'messages.send')
         )
-
-        # await self.app.store.vk_api.send_message_vk(
-        #     message=data
-        # )
-        # if data.get('user_not_registered'):
-        #     await self.app.store.vk_api.send_message(
-        #         MessageVKApi(
-        #             user_id=data['user_id'],
-        #             text=data['text'],
-        #             user_not_registered=data['user_not_registered']
-        #         )
-        #     )
-
-
-        # await self.app.store.vk_api.send_message(
-        #     MessageVKApi(
-        #         user_id=data_message['user_id'],
-        #         text=data_message['message'],
-        #         registered=data_message.get('registered', True)
-        #     ),
-        # )
 
     async def publish(self, queue: str, message: dict) -> None:
         connection = await connect(self.amqp_host)

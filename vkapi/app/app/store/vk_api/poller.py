@@ -55,23 +55,26 @@ class Poller:
 
     async def _handler(self, update: dict) -> None:
         try:
-            data = update['object']['message']
+            data = update['object']
         except KeyError as e:
-            self.logger.error('[vk_api] key [object][message] not found')
-            raise '[vk_api] key [object] or [message] not found'
+            self.logger.error('[vk_api] key [object] not found')
+            raise '[vk_api] key [object] not found'
 
-        if 'payload' in data:
+        if data.get('message'):
+            data = data['message']
+
+        if update['type'] == 'message_new' and 'payload' in data:
             command = json.loads(data['payload']).get('command')
+        elif update['type'] == 'message_event' and 'payload' in data:
+            command = data.get('payload').get('command')
         else:
             command = None
 
         message = {
-            'user_id': data['from_id'],
+            'user_id': data['user_id'] if data.get('user_id') else data.get('from_id'),
             'peer_id': data['peer_id'],
-            'text': data['text'],
-            'command': command
+            'text': data.get('text'),
+            'command': command,
+            'event_id': data.get('event_id')
         }
-        # https://vk.me/join/AJQ1d848/yI6J5hlwkAAU241
-        # message['text'] = 'https://vk.me/join/AJQ1d848/yI6J5hlwkAAU241'
-        # await self.store.vk_api.send_message_vk(message, method='messages.send')
         await self.store.queue.publish(queue='bot', message=message)

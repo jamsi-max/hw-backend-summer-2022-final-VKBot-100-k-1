@@ -6,15 +6,9 @@ from typing import Optional
 from aiohttp import ClientSession, TCPConnector
 
 from app.base.base_accessor import BaseAccessor
-from app.store.vk_api.dataclasses import Message
 from app.store.vk_api.poller import Poller
-from app.store.vk_api.keyboard import (
-    keyboard_close,
-    keyboard_game_start,
-    keyboard_game_join,
-    keyboard_game_stop,
-    keyboard_responder
-)
+from app.store.vk_api.keyboard import keyboard_close
+
 
 if typing.TYPE_CHECKING:
     from app.web.app import Application
@@ -88,31 +82,8 @@ class VkApiAccessor(BaseAccessor):
             data = await response.json()
             self.app.logger.info(data)
 
-            if data.get('ts'):
-                self.ts = data['ts']
+            self.ts = data['ts']
             return data['updates']
-
-    # async def send_message(self, message: Message) -> None:
-    #     query = self._build_query(
-    #             host=PATH_API,
-    #             method='messages.send',
-    #             params={
-    #                 'random_id': random.randint(1, 2 ** 32),
-    #                 'user_id': message.user_id,
-    #                 'message': message.text,
-    #                 'access_token': self.app.config.bot.token
-    #             },
-    #         )
-    #
-    #     if message.user_not_registered:
-    #         keyboard = json.dumps(keyboard_registration)
-    #         query = query + "&keyboard=" + keyboard
-    #
-    #     async with self.session.get(
-    #             query
-    #     ) as response:
-    #         data = await response.json()
-    #         self.logger.info(data)
 
     async def send_message_vk(
             self,
@@ -127,8 +98,11 @@ class VkApiAccessor(BaseAccessor):
                 params={
                     'random_id': random.randint(1, 2 ** 32),
                     destination: message[destination],
-                    'message': message['text'],
-                    'access_token': self.app.config.bot.token
+                    'message': message.get('text'),
+                    'access_token': self.app.config.bot.token,
+                    'event_id': message.get('event_id'),
+                    'peer_id': message.get('peer_id'),
+                    'event_data': message.get('event_data')
                 },
             )
 

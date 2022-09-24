@@ -1,3 +1,4 @@
+import json
 from logging import getLogger
 from random import choice
 from typing import List, Optional
@@ -149,7 +150,17 @@ class GameAccessor(BaseAccessor):
         data['text'] = 'Игра окончена!'
         await self.app.store.queue.publish(queue='vk_api', message=data)
 
-        self.game_run = game.is_run
+        player: PlayerModel = await self.get_player(game.winner)
+        question: QuestionModel = await self.get_questions(game.question_id)
+        data['text'] = f"Статистика игры! <br>" \
+                       f"Начало игры: {game.created:%Y-%m-%d %H:%M} <br>" \
+                       f"Заработано очков: {game.current_score} <br>" \
+                       f"Всего участников: {len(game.players)} <br>" \
+                       f"Победитель: {'не определён' if player is None else player.name} <br>" \
+                       f"Вопрос: {question.title}"
+        await self.app.store.queue.publish(queue='vk_api', message=data)
+
+        self.game_run = False
         self.game_id = None
         self.current_score = 0
         self.responder = None
@@ -158,28 +169,29 @@ class GameAccessor(BaseAccessor):
         self.question_id = None
         self.answers = {}
 
-        await self.info(
-            data=data,
-            keyboard='keyboard_game_start'
-        )
-
-    async def info(self, data: dict, keyboard: str = None) -> None:
+    async def info(self, data: dict) -> None:
         game: GameModel = await self.get_game()
-        question: QuestionModel = await self.get_questions(game.question_id)
-        player: PlayerModel = await self.get_player(game.winner)
-        data['keyboard'] = keyboard
-
-        data['text'] = f'Информация об игре! <br>' \
-                       f'Статус: {"активна" if game.is_run else "не активна"} <br>' \
-                       f'Начало игры: {game.created:%Y-%m-%d %H:%M} <br>' \
-                       f'Заработано очков {game.current_score} <br>' \
-                       f'Победитель: {"не определён" if player is None else player.name} <br>' \
-                       f'Всего игроков: {len(game.players)} <br>' \
-                       f'Вопрос: {question.title}'
-        await self.app.store.queue.publish(queue='vk_api', message=data)
+        data['destination'] = 'user_id'
 
         if self.game_run:
-            await self.show_current_answers(data)
+            question: QuestionModel = await self.get_questions(game.question_id)
+            player_game = await self.get_player_game(int(data['user_id']))
+            text = f"Ваш текущий счёт {player_game.player_game_score}\n" \
+                   f"Вопрос: {question.title}"
+        else:
+            winner = await self.get_player(game.winner)
+            text = "Статус игры: не активна\n" \
+                   f"Дата последней игры: {game.created:%Y-%m-%d}\n" \
+                   f"Победитель: {'не определён' if winner is None else winner.name}\n" \
+
+        data['method'] = 'messages.sendMessageEventAnswer'
+        data['event_data'] = json.dumps(
+            {
+                "type": "show_snackbar",
+                "text": text
+            }
+        )
+        await self.app.store.queue.publish(queue='vk_api', message=data)
 
     async def check_answer(self, data: dict):
         if await self.check_not_game_run(data):
