@@ -83,9 +83,8 @@ class VkApiAccessor(BaseAccessor):
             self.app.logger.info(data)
 
             # self.ts = data['ts']
-            if data.get('ts') is None:
-                await self._get_long_poll_service()
-                return
+            if data.get('ts'):
+                self.ts = data['ts']
 
             return data['updates']
 
