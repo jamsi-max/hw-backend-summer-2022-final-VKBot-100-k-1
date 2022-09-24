@@ -82,7 +82,11 @@ class VkApiAccessor(BaseAccessor):
             data = await response.json()
             self.app.logger.info(data)
 
-            self.ts = data['ts']
+            # self.ts = data['ts']
+            if data.get('ts') is None:
+                await self._get_long_poll_service()
+                return
+
             return data['updates']
 
     async def send_message_vk(
