@@ -81,13 +81,12 @@ class VkApiAccessor(BaseAccessor):
         ) as response:
             data = await response.json()
             self.app.logger.info(data)
-
-            global COUNT_STOP
-            if 'failed' in data:
-                COUNT_STOP += 1
-            elif COUNT_STOP == 5:
-                raise "LONG POLL RASE"
-
+            #
+            # global COUNT_STOP
+            # if 'failed' in data:
+            #     COUNT_STOP += 1
+            # elif COUNT_STOP == 5:
+            #     raise "LONG POLL RASE"
             # self.ts = data['ts']
             if not data.get('ts'):
                 await self._get_long_poll_service()
