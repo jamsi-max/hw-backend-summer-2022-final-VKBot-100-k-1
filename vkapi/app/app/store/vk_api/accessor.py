@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
     from app.web.app import Application
 
 PATH_API = "https://api.vk.com/method/"
-
+COUNT_STOP = 0
 
 class VkApiAccessor(BaseAccessor):
     def __init__(self, app: "Application", *args, **kwargs):
@@ -82,8 +82,16 @@ class VkApiAccessor(BaseAccessor):
             data = await response.json()
             self.app.logger.info(data)
 
+            global COUNT_STOP
+            if 'failed' in data:
+                COUNT_STOP += 1
+            elif COUNT_STOP == 5:
+                raise "LONG POLL RASE"
+
             # self.ts = data['ts']
-            if data.get('ts'):
+            if not data.get('ts'):
+                await self._get_long_poll_service()
+            else:
                 self.ts = data['ts']
 
             return data['updates']
