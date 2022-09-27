@@ -356,15 +356,57 @@ class GameAccessor(BaseAccessor):
             game.responder = self.responder
             await self.add_bd(game)
 
-            player: PlayerModel = await self.get_player(int(data['user_id']))
+            text = 'Вы были первым!\n' \
+                   'Ваш ответ остальные ожидают!'
+            data['event_data'] = json.dumps(
+                {
+                    "type": "show_snackbar",
+                    "text": text
+                }
+            )
+            data['destination'] = 'user_id'
+            data['method'] = 'messages.sendMessageEventAnswer'
+            await self.app.store.queue.publish(queue='vk_api', message=data)
+
+            player: PlayerModel = await self.get_player(self.responder)
             data['keyboard'] = 'keyboard_game_stop'
             data['text'] = f'Отвечает {player.name} <br>' \
                            f'Остальные игроки ожидают!'
+            data['destination'] = 'peer_id'
+            data['method'] ="messages.send"
             await self.app.store.queue.publish(queue='vk_api', message=data)
         else:
-            data['keyboard'] = 'keyboard_game_stop'
-            data['text'] = ''
+            text = 'Вы не успели!\n' \
+                   'Дождитесь переход хода!'
+            data['event_data'] = json.dumps(
+                {
+                    "type": "show_snackbar",
+                    "text": text
+                }
+            )
+            data['destination'] = 'user_id'
+            data['method'] = 'messages.sendMessageEventAnswer'
             await self.app.store.queue.publish(queue='vk_api', message=data)
+
+        # if await self.check_not_game_run(data):
+        #     return
+        #
+        # if self.game_run and not self.responder:
+        #     self.responder = data['user_id']
+        #
+        #     game = await self.get_game(self.game_id)
+        #     game.responder = self.responder
+        #     await self.add_bd(game)
+        #
+        #     player: PlayerModel = await self.get_player(int(data['user_id']))
+        #     data['keyboard'] = 'keyboard_game_stop'
+        #     data['text'] = f'Отвечает {player.name} <br>' \
+        #                    f'Остальные игроки ожидают!'
+        #     await self.app.store.queue.publish(queue='vk_api', message=data)
+        # else:
+        #     data['keyboard'] = 'keyboard_game_stop'
+        #     data['text'] = ''
+        #     await self.app.store.queue.publish(queue='vk_api', message=data)
 
     async def find_answers(self, answer: int) -> Optional[AnswerModel]:
         async with self.app.database.session() as s:

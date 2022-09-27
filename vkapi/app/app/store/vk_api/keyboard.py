@@ -73,7 +73,7 @@ keyboard_responder = {
         [
             {
                 "action": {
-                    "type": "text",
+                    "type": "callback",
                     "payload": "{\"command\": \"responder\"}",
                     "label": "Ответить"
                 },
@@ -82,3 +82,17 @@ keyboard_responder = {
         ]
     ]
 }
+# keyboard_responder = {
+#     "buttons": [
+#         [
+#             {
+#                 "action": {
+#                     "type": "text",
+#                     "payload": "{\"command\": \"responder\"}",
+#                     "label": "Ответить"
+#                 },
+#                 "color": "positive"
+#             }
+#         ]
+#     ]
+# }
